@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -18,15 +19,29 @@ namespace WeatherApp.ViewModel.Helpers
 
         public static async Task<List<City>> GetCities(string query)
         {
-            string url = $"{base_url}{string.Format(autoComplete_endpoint, apiKey, query)}";
+            var url = $"{base_url}{string.Format(autoComplete_endpoint, apiKey, query)}";
 
             using (HttpClient client = new HttpClient())
             {
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Ensure that the HTTP request was successful.
 
-                string json = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<List<City>>(json);
+            }
+        }
+
+        public static async Task<CurrentConditions> GetCurrentConditionsAsync(string cityKey)
+        {
+            var url = $"{base_url}{string.Format(current_condition_endpoint, cityKey, apiKey)}";
+
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // Ensure that the HTTP request was successful.
+
+                var json = await response.Content.ReadAsStringAsync();
+                return (JsonConvert.DeserializeObject<List<CurrentConditions>>(json)).FirstOrDefault();
             }
         }
     }
