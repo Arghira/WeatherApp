@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using WeatherApp.Model;
 using WeatherApp.ViewModel.Commands;
 using WeatherApp.ViewModel.Helpers;
@@ -8,17 +10,19 @@ namespace WeatherApp.ViewModel
     public class WeatherViewModel : INotifyPropertyChanged
     {
         public SearchCommand SearchCommand { get; set; }
+        public ObservableCollection<City> Cities { get; set; }
 
         private string query;
-        private City selectedCity;
+        private City _selectedCity;
         private CurrentConditions currentConditions;
         public event PropertyChangedEventHandler PropertyChanged;
+        private bool isGettingConditions = false;
 
         public WeatherViewModel()
         {
             if (DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
             {
-                selectedCity = new City
+                _selectedCity = new City
                 {
                     LocalizedName = "Romania"
                 };
@@ -29,13 +33,14 @@ namespace WeatherApp.ViewModel
                     {
                         Metric = new Units
                         {
-                            Value = 21
+                            Value = "21"
                         }
                     }
                 };
             }
 
             SearchCommand = new SearchCommand(this);
+            Cities = new ObservableCollection<City>();
         }
 
         private void OnPropertyChanged(string propertyName)
@@ -56,16 +61,40 @@ namespace WeatherApp.ViewModel
         public async void MakeQuery()
         {
             var cities = await AccuWeatherHelper.GetCities(Query);
+
+            Cities.Clear();
+            foreach (var city in cities) 
+            {
+                Cities.Add(city);
+            }
+        }
+
+        public void ClearCities()
+        {
+            Cities?.Clear();
         }
 
         public City SelectedCity
         {
-            get { return selectedCity; }
+            get { return _selectedCity; }
             set
             {
-                selectedCity = value;
-                OnPropertyChanged("SelectedCity");
+                if (_selectedCity != value && !isGettingConditions)
+                {
+                    _selectedCity = value;
+                    OnPropertyChanged("SelectedCity");
+                    isGettingConditions = true;
+                    GetCurrentConditions();
+                    isGettingConditions = false;
+                }
             }
+        }
+
+        private async void GetCurrentConditions()
+        {
+            Query = string.Empty;
+            ClearCities();
+            CurrentConditions = await AccuWeatherHelper.GetCurrentConditionsAsync(SelectedCity.Key);
         }
 
         public CurrentConditions CurrentConditions
