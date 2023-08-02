@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Windows;
 using WeatherApp.View;
@@ -6,31 +8,33 @@ using WeatherApp.ViewModel;
 
 namespace WeatherApp
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    sealed partial class App : Application
+    public partial class App : Application
     {
+        public static IHost AppHost { get; private set; } 
         public App()
         {
-            Services = ConfigureServices();
-
-            this.InitializeComponent();
+            AppHost = Host.CreateDefaultBuilder()
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddSingleton<WeatherWindow>();
+                })
+                .Build();
         }
 
-        public new static App Current => (App)Application.Current;
-
-        public IServiceProvider Services { get; }
-
-        private static IServiceProvider ConfigureServices()
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            var services = new ServiceCollection();
+            await AppHost.StartAsync();
 
-            //Viewmodels
-            services.AddTransient<IWeatherViewModel, WeatherViewModel>();
-            services.AddTransient<WeatherWindow>();
+            var startupform = AppHost.Services.GetRequiredService<WeatherWindow>();
+            startupform.Show();
 
-            return services.BuildServiceProvider();
+            base.OnStartup(e);
+        }
+
+        protected override async void OnExit(ExitEventArgs e)
+        {
+            await AppHost.StopAsync();
+            base.OnExit(e);
         }
     }
 }

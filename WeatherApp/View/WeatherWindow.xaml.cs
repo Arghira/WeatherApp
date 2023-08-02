@@ -11,13 +11,12 @@ namespace WeatherApp.View
     /// </summary>
     public sealed partial class WeatherWindow : Window
     {
-        private readonly IServiceProvider serviceProvider;
         public WeatherWindow()
         {
             InitializeComponent();
 
             //DataContext = Ioc.Default.GetRequiredService<WeatherViewModel>();
-            DataContext = App.Current.Services.GetService<WeatherViewModel>();
+            //DataContext = App.Current.Services.GetService<WeatherViewModel>();
         }
 
         public WeatherViewModel ViewModel => (WeatherViewModel)DataContext;
