@@ -7,7 +7,17 @@ using WeatherApp.ViewModel.Helpers;
 
 namespace WeatherApp.ViewModel
 {
-    public class WeatherViewModel : INotifyPropertyChanged
+    public interface IWeatherViewModel : INotifyPropertyChanged
+    {
+        SearchCommand SearchCommand { get; set; }
+        ObservableCollection<City> Cities { get; set; }
+        string Query { get; set; }
+        void MakeQuery();
+        void ClearCities();
+        City SelectedCity { get; set; }
+        CurrentConditions CurrentConditions { get; set; }
+    }
+    public class WeatherViewModel : IWeatherViewModel
     {
         public SearchCommand SearchCommand { get; set; }
         public ObservableCollection<City> Cities { get; set; }
@@ -38,7 +48,6 @@ namespace WeatherApp.ViewModel
                     }
                 };
             }
-
             SearchCommand = new SearchCommand(this);
             Cities = new ObservableCollection<City>();
         }
@@ -63,7 +72,7 @@ namespace WeatherApp.ViewModel
             var cities = await AccuWeatherHelper.GetCities(Query);
 
             Cities.Clear();
-            foreach (var city in cities) 
+            foreach (var city in cities)
             {
                 Cities.Add(city);
             }

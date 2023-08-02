@@ -10,6 +10,12 @@ using WeatherApp.Model;
 
 namespace WeatherApp.ViewModel.Helpers
 {
+    public interface IAccuWeatherHelper
+    {
+        Task<List<City>> GetCities(string query);
+        Task<CurrentConditions> GetCurrentConditionsAsync(string cityKey);
+    }
+
     public class AccuWeatherHelper
     {
         public const string base_url = "http://dataservice.accuweather.com/";
