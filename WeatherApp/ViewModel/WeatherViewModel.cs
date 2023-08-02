@@ -7,16 +7,6 @@ using WeatherApp.ViewModel.Helpers;
 
 namespace WeatherApp.ViewModel
 {
-    public interface IWeatherViewModel : INotifyPropertyChanged
-    {
-        SearchCommand SearchCommand { get; set; }
-        ObservableCollection<City> Cities { get; set; }
-        string Query { get; set; }
-        void MakeQuery();
-        void ClearCities();
-        City SelectedCity { get; set; }
-        CurrentConditions CurrentConditions { get; set; }
-    }
     public class WeatherViewModel : IWeatherViewModel
     {
         public SearchCommand SearchCommand { get; set; }
